@@ -1,12 +1,4 @@
-const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
-
-// Generate JWT Token
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
-};
 
 // @desc    Admin registration
 // @route   POST /api/admin/register
@@ -28,15 +20,15 @@ const adminRegister = async (req, res) => {
     // Create new admin
     const newAdmin = await Admin.create({ username, email, password, role });
 
-    // Generate token
-    const token = generateToken(newAdmin._id, newAdmin.role);
+    // Set session
+    req.session.adminId = newAdmin._id;
 
     res.status(201).json({
       _id: newAdmin._id,
       username: newAdmin.username,
       email: newAdmin.email,
       role: newAdmin.role,
-      token
+      message: 'Registration successful'
     });
 
   } catch (error) {
@@ -68,18 +60,35 @@ const adminLogin = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate token
-    const token = generateToken(admin._id, admin.role);
+    // Set session
+    req.session.adminId = admin._id;
 
     res.json({
       _id: admin._id,
       username: admin.username,
       email: admin.email,
       role: admin.role,
-      token
+      message: 'Login successful'
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Admin logout
+// @route   POST /api/admin/logout
+// @access  Private
+const adminLogout = async (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error logging out' });
+      }
+      res.json({ message: 'Logout successful' });
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -103,5 +112,6 @@ const getAdminProfile = async (req, res) => {
 module.exports = {
   adminRegister,
   adminLogin,
+  adminLogout,
   getAdminProfile
 };

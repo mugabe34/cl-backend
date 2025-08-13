@@ -3,6 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
+const session = require('express-session');
 require('dotenv').config();
 
 const connectDB = require('./config/db');
@@ -14,13 +15,37 @@ const app = express();
 connectDB().catch(console.error);
 
 // Middleware
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'http://127.0.0.1:5500',
+  'http://localhost:5500'
+];
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -30,12 +55,25 @@ app.use('/api/admin', require('./routes/auth')); // Updated: auth routes include
 app.use('/api/products', require('./routes/products'));
 app.use('/api/chat-users', require('./routes/chatUsers'));
 // Keep this if you have separate admin routes
-app.use('/api/admin-dashboard', require('./routes/admin')); 
+app.use('/api/admin-dashboard', require('./routes/admin'));
+
+// Site settings (simple placeholder)
+app.get('/api/site-settings', (req, res) => {
+  res.json({
+    siteName: 'Croshete',
+    currency: 'USD',
+    contactEmail: 'support@example.com',
+    socials: {
+      instagram: 'https://instagram.com/croshete',
+      facebook: 'https://facebook.com/croshete'
+    }
+  });
+});
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
@@ -44,15 +82,15 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  
+
   if (err.name === 'MulterError') {
     return res.status(400).json({ message: 'File upload error: ' + err.message });
   }
-  
+
   if (err.name === 'MongooseServerSelectionError') {
     return res.status(503).json({ message: 'Database connection error. Please try again later.' });
   }
-  
+
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
