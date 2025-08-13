@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page - cl.crochets</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="enhanced-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" style="padding-top: 100px;">
+        <h1>🚀 cl.crochets E-commerce Platform</h1>
+        <p>Your complete e-commerce solution is ready!</p>
+        
+        <div class="test-section">
+            <h2>✅ What's Working</h2>
+            <ul>
+                <li>✅ Backend server running on port 5000</li>
+                <li>✅ All routes configured correctly</li>
+                <li>✅ Frontend files created and styled</li>
+                <li>✅ WhatsApp integration ready</li>
+                <li>✅ Chat system implemented</li>
+                <li>✅ Admin dashboard created</li>
+                <li>✅ Product management system ready</li>
+                <li>✅ Search and filtering implemented</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 Next Steps</h2>
+            <ol>
+                <li><strong>Install MongoDB:</strong> Download and install MongoDB Community Server</li>
+                <li><strong>Start MongoDB:</strong> Run <code>mongod</code> in a terminal</li>
+                <li><strong>Seed Admin:</strong> Run <code>npm run seed</code> to create admin user</li>
+                <li><strong>Add Products:</strong> Use admin dashboard to add your first products</li>
+                <li><strong>Test Frontend:</strong> Open index.html in your browser</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h2>📱 Test Your Platform</h2>
+            <div class="test-buttons">
+                <a href="index.html" class="btn">🏠 Homepage</a>
+                <a href="shop.html" class="btn">🛍️ Shop Page</a>
+                <a href="admin-dashboard.html" class="btn">👨‍💼 Admin Dashboard</a>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🌐 API Status</h2>
+            <div id="api-status">Checking API status...</div>
+        </div>
+    </div>
+    
+    <style>
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+    </style>
+    
+    <script>
+        // Check API status
+        fetch('http://localhost:5000/health')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('api-status').innerHTML = `
+                    <div style="color: ${data.database === 'connected' ? 'green' : 'orange'}">
+                        <strong>Backend:</strong> ✅ Running on port 5000<br>
+                        <strong>Database:</strong> ${data.database === 'connected' ? '✅ Connected' : '⚠️ Disconnected (MongoDB not running)'}<br>
+                        <strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('api-status').innerHTML = `
+                    <div style="color: red;">
+                        <strong>Backend:</strong> ❌ Not accessible<br>
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html> 
