@@ -20,15 +20,26 @@ const adminRegister = async (req, res) => {
     // Create new admin
     const newAdmin = await Admin.create({ username, email, password, role });
 
-    // Set session
-    req.session.adminId = newAdmin._id;
-
-    res.status(201).json({
-      _id: newAdmin._id,
-      username: newAdmin.username,
-      email: newAdmin.email,
-      role: newAdmin.role,
-      message: 'Registration successful'
+    // Regenerate and persist session before responding
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('Session regenerate error:', err);
+        return res.status(500).json({ message: 'Server error' });
+      }
+      req.session.adminId = newAdmin._id;
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error('Session save error:', saveErr);
+          return res.status(500).json({ message: 'Server error' });
+        }
+        res.status(201).json({
+          _id: newAdmin._id,
+          username: newAdmin.username,
+          email: newAdmin.email,
+          role: newAdmin.role,
+          message: 'Registration successful'
+        });
+      });
     });
 
   } catch (error) {
@@ -60,15 +71,26 @@ const adminLogin = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Set session
-    req.session.adminId = admin._id;
-
-    res.json({
-      _id: admin._id,
-      username: admin.username,
-      email: admin.email,
-      role: admin.role,
-      message: 'Login successful'
+    // Regenerate and persist session before responding
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('Session regenerate error:', err);
+        return res.status(500).json({ message: 'Server error' });
+      }
+      req.session.adminId = admin._id;
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error('Session save error:', saveErr);
+          return res.status(500).json({ message: 'Server error' });
+        }
+        res.json({
+          _id: admin._id,
+          username: admin.username,
+          email: admin.email,
+          role: admin.role,
+          message: 'Login successful'
+        });
+      });
     });
   } catch (error) {
     console.error('Login error:', error);

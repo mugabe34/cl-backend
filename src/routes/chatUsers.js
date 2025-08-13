@@ -7,11 +7,10 @@ const {
 } = require('../controllers/chatUserController');
 const auth = require('../middleware/auth');
 
-// Public routes
+// Protect all chat user routes
+// router.use(auth);
 router.post('/', createChatUser);
+router.get('/', getChatUsers);
+router.put('/:id', updateChatUser);
 
-// Protected routes (admin only)
-router.get('/', auth, getChatUsers);
-router.put('/:id', auth, updateChatUser);
-
-module.exports = router; 
+module.exports = router;

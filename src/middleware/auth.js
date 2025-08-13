@@ -2,8 +2,14 @@ const Admin = require('../models/Admin');
 
 const auth = async (req, res, next) => {
   try {
-    // Check if user is authenticated via session
-    if (!req.session || !req.session.adminId) {
+    // Debug: trace session basics
+    if (!req.session) {
+      console.warn('Auth middleware: req.session is undefined');
+      return res.status(401).json({ message: 'Access denied. Please log in.' });
+    }
+
+    if (!req.session.adminId) {
+      console.warn('Auth middleware: No adminId in session');
       return res.status(401).json({ message: 'Access denied. Please log in.' });
     }
 
@@ -12,6 +18,7 @@ const auth = async (req, res, next) => {
     if (!admin) {
       // Clear invalid session
       req.session.destroy();
+      console.warn('Auth middleware: Admin not found for session adminId');
       return res.status(401).json({ message: 'Invalid session. Please log in again.' });
     }
 

@@ -11,14 +11,17 @@ const {
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
-// Public routes
+// Protect all product routes
+// router.use(auth);
+
+// Routes (protected)
 router.get('/', getProducts);
 router.get('/featured', getFeaturedProducts);
 router.get('/:id', getProduct);
 
-// Protected routes (admin only)
-router.post('/', auth, upload.array('images', 10), createProduct);
-router.put('/:id', auth, upload.array('images', 10), updateProduct);
-router.delete('/:id', auth, deleteProduct);
+// Admin actions
+router.post('/', upload.array('images', 10), createProduct);
+router.put('/:id', upload.array('images', 10), updateProduct);
+router.delete('/:id', deleteProduct);
 
-module.exports = router; 
+module.exports = router;

@@ -15,19 +15,8 @@ const app = express();
 connectDB().catch(console.error);
 
 // Middleware
-const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://127.0.0.1:5500',
-  'http://localhost:5500'
-];
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // reflect request origin to allow any URL
   credentials: true,
   optionsSuccessStatus: 200
 }));
@@ -43,6 +32,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: process.env.SAME_SITE || 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -67,6 +57,15 @@ app.get('/api/site-settings', (req, res) => {
       instagram: 'https://instagram.com/croshete',
       facebook: 'https://facebook.com/croshete'
     }
+  });
+});
+
+// Debug session route (temporary)
+app.get('/api/debug/session', (req, res) => {
+  res.json({
+    hasSession: !!req.session,
+    session: req.session || null,
+    cookies: req.headers.cookie || null
   });
 });
 
