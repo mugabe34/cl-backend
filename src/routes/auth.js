@@ -7,8 +7,10 @@ const auth = require('../middleware/auth');
 router.post('/register', adminRegister); // Registration
 router.post('/login', adminLogin);
 
+// Profile is now public and returns auth status gracefully
+router.get('/profile', getAdminProfile);
+
 // Protected routes
-router.get('/profile', auth, getAdminProfile);
 router.post('/logout', auth, adminLogout);
 
 module.exports = router;

@@ -93,16 +93,30 @@ const adminLogout = async (req, res) => {
   }
 };
 
-// @desc    Get admin profile
+// @desc    Get admin profile or auth status
 // @route   GET /api/admin/profile
-// @access  Private
+// @access  Public (returns authenticated:false when not logged in)
 const getAdminProfile = async (req, res) => {
   try {
-    const admin = await Admin.findById(req.admin._id).select('-password');
-    if (!admin) {
-      return res.status(404).json({ message: 'Admin not found' });
+    const adminId = req.session && req.session.adminId;
+    if (!adminId) {
+      return res.json({ authenticated: false });
     }
-    res.json(admin);
+
+    const admin = await Admin.findById(adminId).select('-password');
+    if (!admin) {
+      return res.json({ authenticated: false });
+    }
+
+    res.json({
+      authenticated: true,
+      _id: admin._id,
+      username: admin.username,
+      email: admin.email,
+      role: admin.role,
+      createdAt: admin.createdAt,
+      updatedAt: admin.updatedAt
+    });
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Server error' });
